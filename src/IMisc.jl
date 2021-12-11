@@ -1,6 +1,7 @@
 module IMisc
+import Base.@kwdef
 
-export Void, void
+export Void, void, @kwdef
 
 """
     Void
