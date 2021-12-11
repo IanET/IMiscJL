@@ -1,5 +1,7 @@
 module IMisc
 
+export Void, void
+
 """
     Void
 
