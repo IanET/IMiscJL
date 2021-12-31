@@ -1,7 +1,7 @@
 module IMisc
 import Base.@kwdef
 
-export Void, void, @kwdef
+export Void, void, @kwdef, Maybe
 
 """
     Void
@@ -14,5 +14,12 @@ const void = Void()
 Void(x::Any) = void
 Base.convert(::Type{Void}, x::Any) = void
 Base.convert(::Type{Void}, v::Void) = void
+
+"""
+    Maybe{T}
+
+A type that is either T or Nothing
+"""
+const Maybe{T} = Union{T, Nothing}
 
 end # module
