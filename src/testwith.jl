@@ -9,62 +9,52 @@ end
 # end
 
 function move(win::Win, x::Int, y::Int)
-    println("Move $(win.value) $x $y")
+    println("Move($(win.value)) $x $y")
 end
 
 function size(win::Win, w::Int, h::Int)
-    println("Size $(win.value) $w $h")
+    println("Size($(win.value)) $w $h")
 end
 
 function setVisible(win::Win, vis::Bool)
-    println("Visible $(win.value) $vis")
+    println("Visible($(win.value)) $vis")
 end
 
 win = Win(42)
 
-# @with(win, move(10, 10), size(640, 480))
-
 macro with(param, exprs...)
-    # @show param
     retexprs = Expr[]
-    # dump(exprs)
     if length(exprs) == 1 && exprs[1].head == :block
         exprs = exprs[1].args
     else
         exprs = collect(exprs)
     end
-    # dump(exprs)
     for expr in exprs
-        if expr isa LineNumberNode continue end
+        if !(expr isa Expr) continue end
         if expr.head == :quote 
             expr = expr.args[1]
         end
-        # @show expr
-        # dump(expr)
-        insert!(expr.args, 2, param)
-        # dump(expr)
-        push!(retexprs, expr)
+        if expr.head == :call
+            insert!(expr.args, 2, param)
+            push!(retexprs, expr)
+        end
     end
-    # dump(retexprs)
     return Expr(:block, retexprs...)
 end
 
 @with win :(move(10, 10)) :(size(20, 20)) :(setVisible(true))
-
-@with win move(10, 10) size(20, 20) setVisible(true)
+@with win move(20, 20) size(30, 30)
+@with win move(20, 20) 
+@with win move(20, 20) size(30, 30) setVisible(false)
 
 @with win begin
-    :(move(10, 10)) 
-    :(size(20, 20)) 
+    :(move(30, 30)) 
+    :(size(40, 40)) 
     :(setVisible(true))
 end
 
 @with win begin
-    move(10, 10)
-    size(20, 20) 
-    setVisible(true)
+    move(40, 40)
+    size(50, 50) 
+    setVisible(false)
 end
-
-# @with(win, move(win, 10, 10))
-# @with win :(move(10, 10))
-
