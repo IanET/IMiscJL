@@ -22,4 +22,13 @@ A type that is either T or Nothing
 """
 const Maybe{T} = Union{T, Nothing}
 
+"""
+    @with 
+
+Macro to substitute first param in a series of expressions.
+Eg
+    @with win move(0,0) size(640, 480) setVisible(true)
+"""
+
+
 end # module
