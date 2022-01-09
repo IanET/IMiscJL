@@ -40,7 +40,7 @@ macro with(param, exprs...)
             expr = expr.args[1]
         end
         # @show expr
-        dump(expr)
+        # dump(expr)
         insert!(expr.args, 2, param)
         # dump(expr)
         push!(retexprs, expr)
@@ -50,6 +50,8 @@ macro with(param, exprs...)
 end
 
 @with win :(move(10, 10)) :(size(20, 20)) :(setVisible(true))
+
+@with win move(10, 10) size(20, 20) setVisible(true)
 
 @with win begin
     :(move(10, 10)) 
