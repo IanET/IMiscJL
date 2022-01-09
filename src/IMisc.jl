@@ -1,7 +1,7 @@
 module IMisc
 import Base.@kwdef
 
-export Void, void, @kwdef, Maybe
+export Void, void, @kwdef, Maybe, @with
 
 """
     Void
@@ -29,34 +29,33 @@ const Maybe{T} = Union{T, Nothing}
 """
     @with 
 
-Macro to substitute first param in a series of expressions.
+Macro to substitute first param in a series of calls.
 Eg
-    @with win begin 
+```    
+    @with window begin 
         move(0,0) 
         size(640, 480) 
-        setVisible(true)
-    end
+        setVisible(true) 
+    end 
+```
 """
 macro with(param, exprs...)
-    retexprs = Expr[]
-    if length(exprs) == 1 && exprs[1].head == :block
-        exprs = exprs[1].args
+    if length(exprs) == 1 && exprs[1] isa Expr && exprs[1].head == :block
+        modcalls(param, exprs[1].args)
     else
-        exprs = collect(exprs)
+        modcalls(param, collect(exprs))
     end
-    for expr in exprs
-        if !(expr isa Expr) continue end
-        if expr.head == :quote 
-            expr = expr.args[1]
-        end
-        if expr.head == :call
-            insert!(expr.args, 2, param)
-            push!(retexprs, expr)
-        end
-    end
-    return Expr(:block, retexprs...)
+    return Expr(:block, exprs...)
 end
 
+# Modify calls to insert param first
+function modcalls(param, exprs)
+    for expr in exprs
+        if expr isa Expr && expr.head == :call
+            insert!(expr.args, 2, param)
+        end
+    end
+end
 
 
 end # module

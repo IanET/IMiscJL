@@ -1,12 +1,9 @@
+include("IMisc.jl")
 using .IMisc
 
 struct Win
     value::Int
 end
-
-# macro with(param, exprs...)
-
-# end
 
 function move(win::Win, x::Int, y::Int)
     println("Move($(win.value)) $x $y")
@@ -21,22 +18,6 @@ function setVisible(win::Win, vis::Bool)
 end
 
 win = Win(42)
-
-macro with(param, exprs...)
-    if length(exprs) == 1 && exprs[1].head == :block
-        exprs = exprs[1].args
-    else
-        exprs = collect(exprs)
-    end
-    for expr in exprs
-        !(expr isa Expr) && continue
-        expr = expr.head == :quote ? expr.args[1] : expr
-        if expr.head == :call
-            insert!(expr.args, 2, param)
-        end
-    end
-    return Expr(:block, exprs...)
-end
 
 @with win move(20, 20) size(30, 30)
 @with win move(20, 20) 
