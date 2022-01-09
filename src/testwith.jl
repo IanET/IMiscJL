@@ -23,35 +23,24 @@ end
 win = Win(42)
 
 macro with(param, exprs...)
-    retexprs = Expr[]
     if length(exprs) == 1 && exprs[1].head == :block
         exprs = exprs[1].args
     else
         exprs = collect(exprs)
     end
     for expr in exprs
-        if !(expr isa Expr) continue end
-        if expr.head == :quote 
-            expr = expr.args[1]
-        end
+        !(expr isa Expr) && continue
+        expr = expr.head == :quote ? expr.args[1] : expr
         if expr.head == :call
             insert!(expr.args, 2, param)
-            push!(retexprs, expr)
         end
     end
-    return Expr(:block, retexprs...)
+    return Expr(:block, exprs...)
 end
 
-@with win :(move(10, 10)) :(size(20, 20)) :(setVisible(true))
 @with win move(20, 20) size(30, 30)
 @with win move(20, 20) 
 @with win move(20, 20) size(30, 30) setVisible(false)
-
-@with win begin
-    :(move(30, 30)) 
-    :(size(40, 40)) 
-    :(setVisible(true))
-end
 
 @with win begin
     move(40, 40)
