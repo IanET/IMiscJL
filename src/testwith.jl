@@ -38,7 +38,7 @@ win = Win(42)
 #     return esc(Expr(:block, exprs...))
 # end
 
-@macroexpand @with win move(20, 20) size(30, 30)
+@with win move(20, 20) size(30, 30)
 @with win move(20, 20) 
 @with win move(20, 20) size(30, 30) setVisible(false)
 
