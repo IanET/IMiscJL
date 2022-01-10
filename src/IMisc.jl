@@ -45,7 +45,7 @@ macro with(param, exprs...)
     else
         modcalls(param, collect(exprs))
     end
-    return Expr(:block, exprs...)
+    return esc(Expr(:block, exprs...))
 end
 
 # Modify calls to insert param first
