@@ -29,33 +29,35 @@ const Maybe{T} = Union{T, Nothing}
 """
     @with 
 
-Macro to substitute first param in a series of calls.
-Eg
+Substitute first param in a series of calls. \n
+For example:
 ```    
     @with window begin 
-        move(0,0) 
+        move(0, 0) 
         size(640, 480) 
         setVisible(true) 
     end 
 ```
+Is syntactic sugar for:
+```
+    move(window, 0, 0) 
+    size(window, 640, 480) 
+    setVisible(window, true) 
+```
 """
 macro with(param, exprs...)
-    if length(exprs) == 1 && exprs[1] isa Expr && exprs[1].head == :block
-        modcalls(param, exprs[1].args)
-    else
-        modcalls(param, collect(exprs))
-    end
+    modcalls(param, isblock(exprs) ? exprs[1].args : collect(exprs))
     return esc(Expr(:block, exprs...))
 end
+
+isblock(exprs) = (length(exprs) == 1) && (exprs[1] isa Expr) && (exprs[1].head == :block)
+iscall(expr) = (expr isa Expr) && (expr.head == :call)
 
 # Modify calls to insert param first
 function modcalls(param, exprs)
     for expr in exprs
-        if expr isa Expr && expr.head == :call
-            insert!(expr.args, 2, param)
-        end
+        iscall(expr) && insert!(expr.args, 2, param)
     end
 end
-
 
 end # module

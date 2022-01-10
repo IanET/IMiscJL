@@ -19,25 +19,6 @@ end
 
 win = Win(42)
 
-
-# Modify calls to insert param first
-# function modcalls(param, exprs)
-#     for expr in exprs
-#         if expr isa Expr && expr.head == :call
-#             insert!(expr.args, 2, param)
-#         end
-#     end
-# end
-
-# macro with(param, exprs...)
-#     if length(exprs) == 1 && exprs[1] isa Expr && exprs[1].head == :block
-#         modcalls(param, exprs[1].args)
-#     else
-#         modcalls(param, collect(exprs))
-#     end
-#     return esc(Expr(:block, exprs...))
-# end
-
 @with win move(20, 20) size(30, 30)
 @with win move(20, 20) 
 @with win move(20, 20) size(30, 30) setVisible(false)
