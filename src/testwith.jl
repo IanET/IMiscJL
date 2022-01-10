@@ -32,9 +32,9 @@ win = Win(42)
     setVisible(false)
 end
 
-move(x::Int, y::Int) = (win) -> move(win, x, y)
-size(x::Int, y::Int) = (win) -> size(win, x, y)
-setVisible(vis::Bool) = (win) -> setVisible(win, vis)
+move(x, y) = (win) -> move(win, x, y)
+size(x, y) = (win) -> size(win, x, y)
+setVisible(vis) = (win) -> setVisible(win, vis)
 
 win |> 
     move(11, 11) |> 
