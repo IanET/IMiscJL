@@ -1,7 +1,7 @@
 module IMisc
 import Base.@kwdef
 
-export Void, void, @kwdef, Maybe, @retrefs, GUID, @guid_str
+export Void, void, @kwdef, Maybe, @retrefs
 
 """
     Void
