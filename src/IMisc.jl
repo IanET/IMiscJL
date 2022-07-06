@@ -82,30 +82,30 @@ end
     return Expr(:tuple, refargexps..., :(f(args...)))
 end
 
-"""
-    GUID 
-"""
-struct GUID
-    Data1::Culong
-    Data2::Cushort
-    Data3::Cushort
-    Data4::NTuple{8, UInt8}
-end
+# """
+#     GUID 
+# """
+# struct GUID
+#     Data1::Culong
+#     Data2::Cushort
+#     Data3::Cushort
+#     Data4::NTuple{8, UInt8}
+# end
 
-# Guid of form 12345678-0123-5678-0123-567890123456
-macro guid_str(s)
-    parse_hexbytes(s::String) = parse(UInt8, s, base = 16)
-    GUID(parse(Culong, s[1:8], base = 16),   # 12345678
-        parse(Cushort, s[10:13], base = 16), # 0123
-        parse(Cushort, s[15:18], base = 16), # 5678
-        (parse_hexbytes(s[20:21]),           # 0123
-            parse_hexbytes(s[22:23]), 
-            parse_hexbytes(s[25:26]),        # 567890123456
-            parse_hexbytes(s[27:28]), 
-            parse_hexbytes(s[29:30]), 
-            parse_hexbytes(s[31:32]), 
-            parse_hexbytes(s[33:34]), 
-            parse_hexbytes(s[35:36])))
-end
+# # Guid of form 12345678-0123-5678-0123-567890123456
+# macro guid_str(s)
+#     parse_hexbytes(s::String) = parse(UInt8, s, base = 16)
+#     GUID(parse(Culong, s[1:8], base = 16),   # 12345678
+#         parse(Cushort, s[10:13], base = 16), # 0123
+#         parse(Cushort, s[15:18], base = 16), # 5678
+#         (parse_hexbytes(s[20:21]),           # 0123
+#             parse_hexbytes(s[22:23]), 
+#             parse_hexbytes(s[25:26]),        # 567890123456
+#             parse_hexbytes(s[27:28]), 
+#             parse_hexbytes(s[29:30]), 
+#             parse_hexbytes(s[31:32]), 
+#             parse_hexbytes(s[33:34]), 
+#             parse_hexbytes(s[35:36])))
+# end
 
 end # module
