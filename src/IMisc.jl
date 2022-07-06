@@ -23,6 +23,16 @@ A type that is either T or Nothing
 const Maybe{T} = Union{T, Nothing}
 
 
+@generated function _retrefs_impl(f::Function, args...)
+    refargexps = Expr[]
+    for i in eachindex(args)
+        if args[i] <: Base.RefValue
+            push!(refargexps, :(args[$i]))
+        end
+    end
+    return Expr(:tuple, refargexps..., :(f(args...)))
+end
+
 """
     @retrefs 
 
@@ -72,15 +82,7 @@ macro retrefs(fex::Expr)
     )
 end
 
-@generated function _retrefs_impl(f::Function, args...)
-    refargexps = Expr[]
-    for i in eachindex(args)
-        if args[i] <: Base.RefValue
-            push!(refargexps, :(args[$i]))
-        end
-    end
-    return Expr(:tuple, refargexps..., :(f(args...)))
-end
+
 
 # """
 #     GUID 
