@@ -33,23 +33,29 @@ eg
 
 Given:
 
-function foo(r::Ref{Int})::Bool
-    r[] += 1
-    return true
-end
+```
+    function foo(r::Ref{Int})::Bool
+        r[] += 1
+        return true
+    end
+```
 
 
 Instead of:
 
-function wrapfoo()
-    r = Ref(Int(0))
-    retval = foo(r)
-    return r, retval
-end
+```
+    function wrapfoo()
+        r = Ref(Int(0))
+        retval = foo(r)
+        return r, retval
+    end
+```
 
 Simply write:
 
-result = @retrefs foo(Int(0))
+```
+    result = @retrefs foo(Int(0))
+```
 
 """
 macro retrefs(fex::Expr)
