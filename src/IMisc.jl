@@ -71,11 +71,11 @@ macro retrefs(fex::Expr)
     @assert fex.head == :call "Expression must be a function call"
     func = fex.args[1]
     args = fex.args[2:end]
-    rr = retrefs_impl
+    # rr = retrefs_impl
     return esc(
         quote 
             @gensym tres vals
-            tres = $rr($func, $(args...))
+            tres = $retrefs_impl($func, $(args...))
             vals = Tuple([r[] for r in tres[begin:end-1]])
             (vals..., tres[end])
         end
