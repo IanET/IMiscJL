@@ -92,10 +92,9 @@ struct GUID
     Data4::NTuple{8, UInt8}
 end
 
-parse_hexbytes(s::String) = parse(UInt8, s, base = 16)
-
 # Guid of form 12345678-0123-5678-0123-567890123456
 macro guid_str(s)
+    parse_hexbytes(s::String) = parse(UInt8, s, base = 16)
     GUID(parse(Culong, s[1:8], base = 16),   # 12345678
         parse(Cushort, s[10:13], base = 16), # 0123
         parse(Cushort, s[15:18], base = 16), # 5678
