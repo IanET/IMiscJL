@@ -22,15 +22,15 @@ A type that is either T or Nothing
 """
 const Maybe{T} = Union{T, Nothing}
 
-# function retrefs_impl(f::Function, args...)
-#     refargexps = Expr[]
-#     for i in eachindex(args)
-#         if args[i] <: Base.RefValue
-#             push!(refargexps, :(args[$i]))
-#         end
-#     end
-#     return Expr(:tuple, refargexps..., :(f(args...)))
-# end
+@generated function retrefs_impl(f::Function, args...)
+    refargexps = Expr[]
+    for i in eachindex(args)
+        if args[i] <: Base.RefValue
+            push!(refargexps, :(args[$i]))
+        end
+    end
+    return Expr(:tuple, refargexps..., :(f(args...)))
+end
 
 """
     @retrefs 
@@ -69,21 +69,13 @@ Simply write:
 """
 macro retrefs(fex::Expr)
     @assert fex.head == :call "Expression must be a function call"
-    function retrefs_impl(f::Function, args...)
-        refargexps = Expr[]
-        for i in eachindex(args)
-            if args[i] <: Base.RefValue
-                push!(refargexps, :(args[$i]))
-            end
-        end
-        return Expr(:tuple, refargexps..., :(f(args...)))
-    end
     func = fex.args[1]
     args = fex.args[2:end]
+    rr = retrefs_impl
     return esc(
         quote 
             @gensym tres vals
-            tres = $retrefs_impl($func, $(args...))
+            tres = $rr($func, $(args...))
             vals = Tuple([r[] for r in tres[begin:end-1]])
             (vals..., tres[end])
         end
