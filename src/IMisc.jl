@@ -1,5 +1,5 @@
 module IMisc
-import Base.@kwdef
+import Base.@kwdef, UUIDs.UUID
 
 export Void, void, @kwdef, Maybe, @with
 
