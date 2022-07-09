@@ -73,9 +73,11 @@ macro retrefs(fex::Expr)
     args = fex.args[2:end]
     return esc(
         quote 
-            let tres = $retrefs_impl($func, $(args...))
-            let vals = Tuple([r[] for r in tres[begin:end-1]])
-            (vals..., tres[end])
+            let
+                tres = $retrefs_impl($func, $(args...))
+                vals = Tuple([r[] for r in tres[begin:end-1]])
+                (vals..., tres[end])
+            end
         end
     )
 end
