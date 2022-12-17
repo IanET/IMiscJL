@@ -82,4 +82,141 @@ macro retrefs(fex::Expr)
     )
 end
 
-end # module
+# function callback0(args::Int32, results::Int32)::Int32
+#     return 0
+# end
+
+# @macroexpand @cfunction(callback0, Int32, (Int32, Int32)) 
+#     return 0
+# end
+
+# macro cfunction1(fex::Expr)
+#     @assert fex.head == :function
+#     # dump(fex)
+#     func = fex.args[1].args[1].args[1]
+#     # dump(func)
+#     args = fex.args[1].args[1].args[2:end]
+#     # dump(args)
+#     #  TODO Assert args are head = ::, args[2] is a type
+#     argtypes = tuple([arg.args[2] for arg in args]...)
+#     # dump(argtypes)
+#     rettype = fex.args[1].args[end]
+#     argtypeexpr = Expr(:tuple, (argtypes...))
+#     # dump(:(@cfunction($func, $rettype, $argtypeexpr)))
+
+#     # Works
+#     # return :(@cfunction($func, $rettype, $argtypeexpr))
+#     exp1 = :($fex)
+#     exp2 = :(@cfunction($func, $rettype, $argtypeexpr))
+#     # return :($exp1) # works
+#     # return exp1 # works
+
+#     # return Expr(:block, exp1) # mangles name
+#     # return esc(Expr(:block, exp1)) # works
+#     # return esc(Expr(:block, exp2)) # works
+#     return esc(Expr(:block, exp1, exp2)) # fails
+
+#     # dump(exp1)
+#     # dump(exp2)
+#     # return esc(Expr(:block, (exp1, exp2)))
+#     # return exp1
+# end # module
+
+# @cfunction1 function callback3(args::Int32, results::Int32)::Int32
+#     return Int32(0)
+# end
+
+# @macroexpand @cfunction1 function callback5(a::Int, b::Int)::Int
+#     return a+b
+# end
+
+# # dump(:(@cfunction(callback, Int32, (Int32, Int32))))
+
+# q1 = quote
+#     function callback9(a::Int, b::Int)::Int
+#         return a + b
+#     end
+#     dump(callback9)
+#     @cfunction(callback9, Int, (Int, Int))
+# end
+
+# eval(q1)
+
+
+# macro cfunction1(fex::Expr)
+# # macro cfunction1(f, rt, at)
+#     # dump(f)
+#     # dump(rt)
+#     # dump(at)
+#     func = fex.args[1].args[1].args[1]
+#     rettype = fex.args[1].args[end]
+#     # args = fex.args[1].args[1].args[2:end]
+#     # argtypes = tuple([arg.args[2] for arg in args]...)
+#     (f, rt, at) = (func, rettype, :(Int, Int))
+#     # if !(isa(at, Expr) && at.head === :tuple)
+#     #     throw(ArgumentError("@cfunction argument types must be a literal tuple"))
+#     # end
+#     at.head = :call
+#     pushfirst!(at.args, GlobalRef(Core, :svec))
+#     # if isa(f, Expr) && f.head === :$
+#     #     fptr = f.args[1]
+#     #     typ = CFunction
+#     # else
+#         fptr = QuoteNode(f)
+#         typ = Ptr{Cvoid}
+#     # end
+#     cfun = Expr(:cfunction, typ, fptr, rt, at, QuoteNode(:ccall))
+#     return esc(cfun)
+# end
+
+# # @cfunction1(callback1, Int, (Int, Int))
+
+# # @cfunction1(callback1, Int, (Int, Int))
+
+# function callback1(a::Int, b::Int)::Int
+#     return a + b
+# end
+
+# @cfunction1 function callback2(a::Int, b::Int)::Int
+#     return a + b
+# end
+
+
+
+# :($(Expr(:cfunction, Ptr{Nothing}, :(:callback1), :Int, :(Core.svec(Int, Int)), :(:ccall))))
+
+# function callback1(a::Int, b::Int)::Int
+#     return a + b
+# end
+
+# @macroexpand @cfunction(callback1, Int, (Int, Int))
+
+# Works!
+q1 = quote
+    function callback1(a::Int, b::Int)::Int
+        return a + b
+    end
+    @cfunction(:(:callback1), Int, (Int, Int))
+end
+
+eval(q1)
+
+
+
+import Base.@cfunction
+
+macro cfunction(fex::Expr)
+    @assert fex.head == :function  # fex is a function definition 
+    funcname = fex.args[1].args[1].args[1] |> String
+    rettype = fex.args[1].args[end]
+    args = fex.args[1].args[1].args[2:end]
+    argtypes = [arg.args[2] for arg in args]
+    argtypeexpr = Expr(:tuple, (argtypes...)) # types must be a litteral tuple for cfunction
+    cfexp = :(@cfunction($funcname, $rettype, $argtypeexpr)) # the cfunction ptr
+    return esc(Expr(:block, fex, cfexp)) 
+end
+
+# test
+cf = @cfunction function callback3(a::Int, b::Int)::Int
+    return a + b
+end
