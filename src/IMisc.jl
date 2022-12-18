@@ -82,20 +82,14 @@ macro retrefs(fex::Expr)
     )
 end
 
-# import Base.@cfunction
 
-# macro cfunction(fex::Expr)
-#     @assert (fex.head == :function) "Macro can only be applied to a function"
-#     funcname = fex.args[1].args[1].args[1] |> String
-#     rettype = fex.args[1].args[end]
-#     args = fex.args[1].args[1].args[2:end]
-#     argtypes = [arg.args[2] for arg in args]
-#     argtypeexpr = Expr(:tuple, (argtypes...)) # types must be a litteral tuple for cfunction
-#     cfexp = :(@cfunction($funcname, $rettype, $argtypeexpr)) # the cfunction ptr
-#     return esc(Expr(:block, fex, cfexp)) 
-# end
 
-# # test
-# cf = @cfunction function callback3(a::Int, b::Int)::Int
-#     return a + b
-# end
+
+function cfunction(f::Function)
+    fname = Symbol(f) |> QuoteNode
+    func = methods(f)[end] # NB Picking last method for function
+    argtypes = func.sig.types[2:end]
+    argtypesvecexp = :(Core.svec($(argtypes...)))
+    rettype = Base.return_types(f)[end] # NB Picking the last return type
+    return Expr(:cfunction, Ptr{Nothing}, fname, rettype, argtypesvecexp, :(:ccall)) |> eval # Using Expr since arg types must be literal
+end
