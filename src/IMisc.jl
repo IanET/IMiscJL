@@ -83,8 +83,6 @@ macro retrefs(fex::Expr)
 end
 
 
-
-
 function cfunction(f::Function)
     fname = Symbol(f) |> QuoteNode
     func = methods(f)[end] # NB Picking last method for function
@@ -93,3 +91,4 @@ function cfunction(f::Function)
     rettype = Base.return_types(f)[end] # NB Picking the last return type
     return Expr(:cfunction, Ptr{Nothing}, fname, rettype, argtypesvecexp, :(:ccall)) |> eval # Using Expr since arg types must be literal
 end
+
