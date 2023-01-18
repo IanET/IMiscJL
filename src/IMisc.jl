@@ -1,7 +1,7 @@
 module IMisc
 import Base.@kwdef
 
-export Void, void, @kwdef, Maybe, @retrefs
+export Void, void, @kwdef, Maybe, @retrefs, cfunction
 
 """
     Void
@@ -80,6 +80,20 @@ macro retrefs(fex::Expr)
             end
         end
     )
+end
+
+"""
+    cfunction(f::Function)
+
+Return an @cfunction wrapper for the given function f. The function must have typed arguments
+"""
+function cfunction(f::Function)
+    fname = Symbol(f) |> QuoteNode
+    func = methods(f)[end] # NB Picking last method for function
+    argtypes = func.sig.types[2:end]
+    argtypesvecexp = :(Core.svec($(argtypes...)))
+    rettype = Base.return_types(f)[end] # NB Picking the last return type
+    return Expr(:cfunction, Ptr{Nothing}, fname, rettype, argtypesvecexp, :(:ccall)) |> eval # Using Expr since arg types must be literal
 end
 
 end # module
