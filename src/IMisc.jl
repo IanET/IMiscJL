@@ -54,7 +54,6 @@ Simply write:
 ```
 
 """
-# Extract inline ref assignments
 macro inlineref(inexpr::Expr)
     @assert inexpr.head == :call "Expression must be a function call"
     outexpr = Expr[]
