@@ -1,7 +1,7 @@
 module IMisc
 import Base.@kwdef
 
-export Void, void, @kwdef, Maybe, @retrefs
+export Void, void, Maybe, @inlineref
 
 """
     Void
