@@ -7,56 +7,37 @@ function f1(a::Int, b::Int, c::Ref{Int})::Bool
     return true
 end
 
-# macro m1(fexp::Expr)
-#     return fexp
-# end
+function f2(a::Int, b::Int, c::Ref{Int}, d::Ref{Int})::Bool
+    c[] = a + b
+    d[] = a - b
+    return false
+end
 
-# res = Ref{Int}(0)
-# @m1 f1(1, 2, res)
-
-# @macroexpand @m1 f1(1, 2, res)
-
-macro m2(fex::Expr)
-    func = fex.args[1]
-    args = fex.args[2:end]
-    # @info "m2" func args
-    retexprs = Expr[]
+# Extract inline ref assignments
+macro inlineref(inexpr::Expr)
+    @assert inexpr.head == :call "Expression must be a function call"
+    outexpr = Expr[]
     params = []
-    for arg in args
+    for arg in inexpr.args[2:end]
         if typeof(arg) <: Expr && arg.head == :kw
-            # dump(arg)
             lhs = arg.args[1]
             push!(params, lhs)
-            rhs = arg.args[2]
-            push!(retexprs, Expr(Symbol('='), lhs, rhs))
-            dump(exp)
+            push!(outexpr, Expr(Symbol('='), lhs, arg.args[2]))
         else
             push!(params, arg)
         end
     end
-    # dump(params)
-    push!(retexprs, Expr(:call, func, params...))
-    expr = Expr(:block, retexprs...)
-    dump(expr)
-    return esc(expr)
+    push!(outexpr, Expr(:call, inexpr.args[1], params...))
+    return esc(Expr(:block, outexpr...))
 end
 
-@m2 f1(2, 3, res = Ref{Int}(0))
+function test()
+    res = @inlineref f1(2, 3, out = Ref{Int}(0))
+    @info res out[]
 
-@macroexpand @m2 f1(2, 3, res = Ref{Int}(0))
+    res = @inlineref f2(2, 3, out1 = Ref{Int}(0), out2 = Ref{Int}(0))
+    @info res out1[] out2[]
 
+end
 
-quote
-    res = Ref{Int}(0)
-    f1(1, 2, res)
-end |> dump
-
-
-@m2 f1(1, 2, res)
-
-@m2 f1(1, 2, Ref{Int}(0))
-
-quote
-    res = Ref{Int}(0)
-    f1(1, 2, res)
-end |> dump
+test()
